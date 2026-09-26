@@ -295,7 +295,7 @@ lunar install package.okra
 
 ## OPSIS
 
-OPSIS（OkraLinux Package Standard Installation Script）是给安装脚本用的 shell 函数库，文件是 `opsis/opsis-runtime.sh`，版本 1.0.0，按 POSIX sh / BusyBox ash 编写。它不提供独立命令，Lunar 提交事务时也不会 source 它。包的安装脚本在开头引入：
+OPSIS（OkraLinux Package Standard Installation Script）是给安装脚本用的 shell 函数库，文件是 `opsis/opsis-runtime.sh`，版本 1.0.0，按 POSIX sh 编写。它不提供独立命令，Lunar 提交事务时也不会 source 它。包的安装脚本在开头引入：
 
 ```sh
 . /path/to/opsis-runtime.sh

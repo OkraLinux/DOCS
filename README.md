@@ -6,8 +6,10 @@
 
 | 文档 | 内容 |
 |---|---|
+| [手册](handbook.md) | 当前代码下的整条路径：构建、Live CD、安装、引导、界面 |
 | [OkraPM](okrapm.md) | Lunar、OAA、OPSIS 和本地软件源 |
 | [OkraLinux](okra-linux.md) | LiveCD 构建、引导和安装器 |
+| [OKRAINSTALL](okrainstall.md) | 三阶段 TUI 安装程序 |
 | [构建工作区](workspace.md) | 这块构建盘上的源码树、sysroot 和镜像 |
 
 ## 获取
@@ -21,6 +23,6 @@ git clone git@github.com:OkraLinux/DOCS.git
 Okra 目前由两块代码组成：
 
 - **OkraPM**：Okra Rolling Linux 的用户态包管理工具链。命令行入口是 `lunar`，包格式是 `.oaa` 和传统 `.okra`。
-- **OkraLinux**：LiveCD 发行版构建。用 Limine 引导，SquashFS 加 OverlayFS，systemd 作为 PID 1。
+- **OkraLinux**：LiveCD 发行版构建。用 Limine 引导，SquashFS 加 OverlayFS，systemd 作为 PID 1。默认安装器是 **OKRAINSTALL**（三阶段 TUI）；可选 Kanina（Qt）。
 
 二者在构建盘上相邻放置。LiveCD 流水线默认从 OkraLinux 仓库的上一级目录读取内核、rootfs 和 Limine。

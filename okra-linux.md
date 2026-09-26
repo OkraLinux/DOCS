@@ -12,7 +12,8 @@ okra-linux/
 │   ├── initramfs/       initramfs 暂存树
 │   ├── iso-root/        ISO 暂存树和 Limine 配置
 │   └── scripts/         可重复的构建和测试阶段
-└── kanina-installer/    Qt 6 安装器
+├── OKRAINSTALL/         三阶段 TUI 安装程序（默认）
+└── kanina-installer/    Qt 6 安装器（可选）
 ```
 
 内核、工作根文件系统和 Limine 默认在仓库外面：
@@ -88,6 +89,16 @@ FEDORA_ROOTFS=1 FEDORA_RELEASE=41 SKIP_QEMU=1 \
 
 托管的容器任务没有可靠的嵌套虚拟化，所以工作流不跑 QEMU。QEMU 启动测试放在本机，或放在自托管 runner 上。
 
-## Kanina 安装器
+## OKRAINSTALL（默认）
 
-`kanina-installer/` 是 Qt 6 Widgets 程序，C++17，CMake 工程名 `kanina-installer`，版本 0.1.0。旁边有三份 systemd 单元：`kanina-installer.service`、`kanina-live.service`、`kanina-tui.service`，以及一份 `weston.ini`。
+`OKRAINSTALL/` 是跨两次重启的三阶段 TUI 安装程序：
+
+1. LiveCD：分区、复制 Base-OS、植入脚本与 `phase=2`、安装 GRUB、重启
+2. 硬盘 Base-OS：本机配置、驱动、`phase=3`、重启。不写软件源，不装包
+3. Final-OS：账号/时区、清理残留并删除标记。不做在线更新
+
+详情见 [OKRAINSTALL](okrainstall.md) 和 [手册](handbook.md)。`build-rootfs` 默认 `INSTALL_OKRAINSTALL=1`。已安装磁盘用 GRUB；Live CD 仍用 Limine。
+
+## Kanina 安装器（可选）
+
+`kanina-installer/` 是 Qt 6 Widgets 程序，C++17，CMake 工程名 `kanina-installer`，版本 0.1.0。旁边有三份 systemd 单元：`kanina-installer.service`、`kanina-live.service`、`kanina-tui.service`，以及一份 `weston.ini`。默认不启用；设 `INSTALL_KANINA=1` 时打进 rootfs。与 OKRAINSTALL 共存时 tty1 仍走 OKRAINSTALL。
