@@ -7,6 +7,7 @@
 | 文档 | 内容 |
 |---|---|
 | [手册](handbook.md) | 当前代码下的整条路径：构建、Live CD、安装、引导、界面 |
+| [OAABI](oaabi.md) | 用户态二进制合同：ELF、调用、导出符号、插件入口、OAA 的 `abi` 字段 |
 | [OkraPM](okrapm.md) | Lunar、OAA、OPSIS 和本地软件源 |
 | [OkraLinux](okra-linux.md) | LiveCD 构建、引导和安装器 |
 | [OKRAINSTALL](okrainstall.md) | 三阶段 TUI 安装程序 |
