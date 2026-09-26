@@ -1,23 +1,44 @@
-# OKRA-Linux C 代码生成约束
+# OKRA-Linux 代码生成约束
 
-生成新的 C 代码时，每一行都遵守本文。未列出的排版、花括号、空格、宏的写法、头文件分组、`goto` 收尾、`switch`、空行，全部按 Linux 内核编码风格。第 2 节的五条覆盖内核中的同名习惯。
+生成新代码时，每一行遵守本文。禁止把已有旧代码改成新风格。修旧函数时保持该函数现有缩进和命名。
 
 ## 1. 范围
 
-- 只对即将写出的新 C 代码生效。
-- 新建文件：整个文件遵守本文。
+- 新建文件：整个文件遵守本文对应语言的章节。
 - 旧文件：只对新增的函数、类型、宏、全局变量遵守本文。
-- 禁止修改、重排、重命名已有旧代码来对齐本文。
-- 修复旧函数时，保持该函数现有缩进和命名。不要把旧的 snake_case 改成 PascalCase。
-- 不要改 Shell、C++、Python，除非用户明确要求改那些语言。
+- 禁止为对齐风格去重排、重命名旧代码。
+- 文件名保持小写。
+- 关键字、标准库、trait 规定的方法名、Python 双下划线方法、环境变量、CMake 内建变量：保持原拼写。
 
-## 2. 硬性规则
+语言对照：
 
-1. 缩进只用 Tab 字符。禁止用空格做缩进。Tab 宽度 = 4。行宽上限 = 120，一个 Tab 计 4。超长则在逗号或运算符后换行。续行的缩进级用 Tab；括号对齐用的空格只能出现在这些 Tab 之后。
-2. 新标识符全部 PascalCase。包括函数、全局变量、局部变量、静态变量、结构体、联合体、枚举、枚举成员、typedef、宏、goto 标签。
-3. 名字用完整英文单词。禁止自造缩写。允许的短写只有已经通用的形式，例如 `Id`、`Ctx`。禁止 `Buf`、`Tmp`、`Dev`、`Cfg`、`Ptr`、`Len`、`Cnt`、`Num` 这类缩写。
-4. 禁止 camelCase。禁止 snake_case。禁止全大写加下划线的宏，例如 `BUFFER_LIMIT`。宏写 `BufferLimit`。
-5. 单行注释可以用 `//`。多行说明和文件头用 `/* */`。每个非 static 的对外函数定义上方必须有且仅使用下面这种文档注释：
+- C：内核编码风格，再叠加第 2 节。
+- C++：与 C 相同的排版，资源用 RAII，再叠加第 2 节。
+- Python：PEP 8 的语句和空行；缩进、命名、行宽以第 2 节为准，不按 PEP 8 的空格和 snake_case。
+- Rust：Rust 语法和花括号；缩进、命名、行宽以第 2 节为准，不按默认 rustfmt 把名字改回 snake_case。
+- Shell：该文件已有的 bash 或 POSIX sh；新名字按第 2 节。
+- 未列语言：第 2 节加上该语言的通用语法。
+
+## 2. 共同硬性规则
+
+1. 缩进只用 Tab。禁止用空格做缩进。Tab 宽度 = 4。行宽上限 = 120，一个 Tab 计 4。超长则在逗号或运算符后换行。括号对齐用的空格只能出现在 Tab 之后。
+2. 新标识符全部 PascalCase。包括函数、方法、变量、常量、类型、枚举成员、宏、goto 标签。
+3. 名字用完整英文单词。允许的短写只有 `Id`、`Ctx` 这类通用形式。禁止 `Buf`、`Tmp`、`Dev`、`Cfg`、`Ptr`、`Len`、`Cnt`、`Num`。
+4. 禁止 camelCase。禁止 snake_case。禁止项目自己的全大写下划线名字。常量写 `BufferLimit`，不写 `BUFFER_LIMIT`。
+5. 对外函数必须有文档注释，且包含功能一句、每个参数、返回值或失败行为。内部函数不写这套头注释。记号见各语言章节。
+
+## 3. C
+
+- 函数左花括号单独成行。`if` / `else` / `for` / `while` / `switch` 的左花括号留在行尾。
+- 关键字和 `(` 之间一个空格。函数名和 `(` 之间无空格。
+- 指针星号靠名字。
+- 不 typedef 结构体和指针。写 `struct DeviceContext`。
+- 成功返回 `0`，失败返回负 errno。
+- 多步失败用 `goto` 收到函数末尾，释放顺序与申请相反。标签 PascalCase。
+- `case` 与 `switch` 对齐。贯穿时加注释。
+- 函数之间空一行。头文件分组，组间空一行。
+- 单行注释可用 `//`。块注释用 `/* */`。
+- 对外函数文档注释只使用：
 
 ```
 /**
@@ -28,69 +49,64 @@
  */
 ```
 
-每个参数一行。必须有 `Return:`。`static` 函数不写这套头注释。
+## 4. C++
 
-## 3. 必须保持的内核规则
+遵守第 3 节的排版、命名和 `/** */`。
 
-- 函数左花括号单独成行。`if` / `else` / `for` / `while` / `switch` 的左花括号留在行尾。
-- 关键字和 `(` 之间一个空格。函数名和 `(` 之间无空格。
-- 指针星号靠名字：`struct DeviceContext *Context`。
-- 不给结构体和指针做 typedef。写 `struct DeviceContext`。
-- 失败返回负 errno，成功返回 `0`，除非所在子系统已有别的约定。
-- 多步分配失败时 `goto` 到函数末尾，按申请的反序释放。标签 PascalCase，例如 `FreeContext:`。
-- `case` 与 `switch` 对齐。需要贯穿时加注释。
-- 函数之间空一行。
-- 头文件分组，组间空一行。
-- 源文件名保持小写，不使用 PascalCase 文件名。
+- 类和结构体用 PascalCase。命名空间用 PascalCase。
+- 成员不用 `m_` 前缀。
+- 别名写 `using DeviceId = std::uint32_t;`。
+- 可由析构函数释放的资源用 RAII，不手写 `goto`。
+- 尚未装入对象的资源，`goto` 规则与 C 相同。
+- 调用标准库和 C API 时不改那些 API 的名字。
 
-## 4. 输出前自检
+## 5. Python
 
-生成结束前逐条确认：
+- 缩进是 Tab，不是 4 个空格。
+- 顶层函数之间空两行。运算符空格按 PEP 8。
+- 函数、类、变量、常量都是 PascalCase。
+- `__init__` 等语言规定的方法保持原名。
+- 失败用异常，不返回负 errno。
+- 对外函数的文档字符串只使用：
 
-- 没有把空格当作缩进。
-- 没有一行的显示宽度超过 120。
-- 新名字里没有下划线，也不是全大写。
-- 新的对外函数都有第 2 节第 5 条规定的 `/** */`。
-- 没有改动 diff 范围之外的旧代码。
-- 没有为了风格去格式化整个旧文件。
-
-## 5. 新函数模板
-
-新函数按此骨架输出。缩进是 Tab。
-
-```c
-/**
- * CreateDeviceContext() - Allocate a context and copy the device path.
- * @DevicePath: NUL-terminated device path.
- * @Context: Receives the new context on success.
- *
- * Return: 0 on success. -EINVAL if an argument is NULL. -ENOMEM if allocation fails.
- */
-int CreateDeviceContext(const char *DevicePath, struct DeviceContext **Context)
-{
-	struct DeviceContext *LocalContext;
-	char *PathCopy;
-
-	if (!DevicePath || !Context)
-		return -EINVAL;
-
-	LocalContext = kzalloc(sizeof(*LocalContext), GFP_KERNEL);
-	if (!LocalContext)
-		return -ENOMEM;
-
-	PathCopy = kstrdup(DevicePath, GFP_KERNEL);
-	if (!PathCopy)
-		goto FreeContext;
-
-	LocalContext->DevicePath = PathCopy;
-	LocalContext->State = DeviceStateIdle;
-	*Context = LocalContext;
-	return 0;
-
-FreeContext:
-	kfree(LocalContext);
-	return -ENOMEM;
-}
+```
+"""FunctionName() - 一句话说明功能。
+@ParameterName: 该参数的含义与约束。
+Return: 成功时的值，以及失败时抛出的异常。
+"""
 ```
 
-文档注释的说明文字可以用英文或中文，结构不能变。标识符必须是 PascalCase 英文。
+## 6. Rust
+
+- 函数左花括号跟在签名同一行。用 `Result` 和 `?`，不写 `goto`。
+- 函数、方法、常量、类型、枚举成员都是 PascalCase。不使用 `SCREAMING_SNAKE_CASE`。
+- trait 要求的方法名保持 trait 的拼写。
+- 对外函数只使用：
+
+```
+/// FunctionName() - 一句话说明功能。
+/// @ParameterName: 该参数的含义与约束。
+/// Return: 成功时的值，以及失败时的错误类型。
+```
+
+## 7. Shell
+
+- 保持该文件已经使用的 bash 或 POSIX sh，不擅自升级方言。
+- 新函数和新的 `local` 变量用 PascalCase。`PATH` 等环境变量保持原样。
+- `if` 与 `then` 的摆法在同一新文件内只选一种。
+- 对外函数上一行起使用：
+
+```
+# FunctionName() - 一句话说明功能。
+# @ParameterName: 该参数的含义与约束。
+# Return: 0 的含义，以及非 0 的含义。
+```
+
+## 8. 输出前自检
+
+- 没有用空格做缩进。
+- 没有一行显示宽度超过 120。
+- 新名字没有下划线，也不是全大写。语言强制的名字除外。
+- 新的对外函数有对应语言那一节规定的文档注释。
+- 没有改动本次新增范围之外的旧代码。
+- 没有为了风格去格式化整个旧文件。
